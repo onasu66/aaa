@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
 WORKDIR /app
 
-CMD ["python", "ai_talk.py"]
+CMD ["python", "app.py"]

@@ -1,6 +1,8 @@
-fastapi==0.94.1
-line-bot-sdk==2.4.2
-openai==0.27.2
-requests==2.28.2
-uvicorn
-gunicorn
+langchain
+openai
+chromadb
+transformers
+pandas
+matplotlib
+flask
+linebot
