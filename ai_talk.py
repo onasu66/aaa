@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 import openai
 from linebot import WebhookParser, LineBotApi
 from linebot.models import TextSendMessage
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
@@ -36,7 +36,7 @@ def count_tokens(text: str) -> int:
     return len(tokenizer.encode(text))
 
 # Step 4: Split text into chunks
-text_splitter = RecursiveCharacterTextSplitter(
+text_splitter = CharacterTextSplitter(
     # Set a really small chunk size, just to show.
     chunk_size=512,
     chunk_overlap=24,
