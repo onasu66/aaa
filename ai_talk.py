@@ -23,9 +23,9 @@ OPENAI_CHARACTER_PROFILE = '''
 '''
 
 
-openai.api_key = OPENAI_API_KEY
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-line_parser = WebhookParser(LINE_CHANNEL_SECRET)
+openai.api_key = "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"
+line_bot_api = LineBotApi("vtNEjP6IvEOZy/kGGKQ4trYobJ7cx2khewDnigkqXq9MsiqGeuk94AVQ4XckF12O/62oawSQaJqC+zrZ2DDEVOXI+Yo5LVxoSlm6XnsQD9UrQn30wDEgeJm6VuTTmWxrEAQRkdAsqetSNTeXzIjvuQdB04t89/1O/w1cDnyilFU=")
+line_parser = WebhookParser("3971a771a03a8d6a9f8ee09f38a4ce94")
 app = FastAPI()
 
 
