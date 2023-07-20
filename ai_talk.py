@@ -2,13 +2,11 @@ from fastapi import FastAPI, Request
 import openai
 from linebot import WebhookParser, LineBotApi
 from linebot.models import TextSendMessage
-from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms import OpenAI
-from langchain.chains import VectorDBQA, RetrievalQA
 from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import TextLoader, PyPDFLoader
+from langchain.document_loaders import PyPDFLoader
 import os
 
 # Constants
@@ -33,13 +31,13 @@ def load_pdf(file_path):
     texts = text_splitter.split_documents(documents)
     return texts
 
-# Preprocess PDF for langchain
+# Preprocess PDF
 texts = load_pdf('生活保護運用事例 集 2017（令和3年6月改訂版）.pdf')
-embeddings = OpenAIEmbeddings()
-vectordb = Chroma.from_documents(texts, embeddings)
+texts = [page.page_content for doc in texts for page in doc]
 
-# Create QA chain using langchain
-qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(model_name="gpt-3.5-turbo"), chain_type="stuff", retriever=vectordb.as_retriever())
+# Create QA chain using langchain (No need for Chroma)
+embeddings = OpenAIEmbeddings()
+qa = ChatOpenAI(model_name="gpt-3.5-turbo")
 
 # Handle incoming messages and generate responses
 @app.post('/')
@@ -62,21 +60,8 @@ async def ai_talk(request: Request):
         line_message = event.message.text
 
         # ChatGPT からトークデータを取得
-        response = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo',
-            temperature=0.5,
-            messages=[
-                {
-                    'role': 'system',
-                    'content': OPENAI_CHARACTER_PROFILE.strip()
-                },
-                {
-                    'role': 'user',
-                    'content': line_message
-                }
-            ]
-        )
-        ai_message = response['choices'][0]['message']['content']
+        response = qa.run(line_message, system_message=OPENAI_CHARACTER_PROFILE)
+        ai_message = response["response"]
 
         # LINE メッセージの送信
         line_bot_api.push_message(line_user_id, TextSendMessage(ai_message))
