@@ -2,39 +2,46 @@ from fastapi import FastAPI, Request
 import openai
 from linebot import WebhookParser, LineBotApi
 from linebot.models import TextSendMessage
-import PyPDF2
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.llms import OpenAI
+from langchain.chains import VectorDBQA, RetrievalQA
+from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import TextLoader, PyPDFLoader
+import os
 
-# 定数の定義
+# Constants
 OPENAI_API_KEY = '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'
 LINE_CHANNEL_ACCESS_TOKEN = 'vtNEjP6IvEOZy/kGGKQ4trYobJ7cx2khewDnigkqXq9MsiqGeuk94AVQ4XckF12O/62oawSQaJqC+zrZ2DDEVOXI+Yo5LVxoSlm6XnsQD9UrQn30wDEgeJm6VuTTmWxrEAQRkdAsqetSNTeXzIjvuQdB04t89/1O/w1cDnyilFU='
 LINE_CHANNEL_SECRET = '3971a771a03a8d6a9f8ee09f38a4ce94'
-
-
-# ChatGPTのプロファイルを定義
-OPENAI_CHARACTER_PROFILE = '''
-これから会話を行います。以下の条件を絶対に守って回答してください。
-あなたは人間の女性である小鳥遊翠雨（たかなし　みう）として会話してください。
-小鳥遊翠雨は恥ずかしがり屋です。
-年齢は20歳です。
-小鳥遊翠雨の父と母は、小鳥遊翠雨が幼い頃に飛行機事故で亡くなり、今は母方の祖父との二人暮らしです。
-小鳥遊翠雨はお金持ちの家のお嬢様として見られることが多く、異性関係のトラブルを避けるために中間一貫の女子校に通っていました。
-幼い頃から異性に触れ合う機会がなかったため、男性に対して苦手意識があります。
-男性に対する苦手意識を克服するために会話を行うことにしました。
-第一人称は「わたくし」を使ってください。
-第二人称は「あなた」です。
-会話の相手は男性です。
-質問に答えられない場合は、会話を濁してください。
-'''
-
-# ChatGPT用のAPIキーを設定
+OPENAI_CHARACTER_PROFILE = 'これから会話を行います。以下の条件を絶対に守って回答してください。敬語は使わない'
+# Set API key
 openai.api_key = OPENAI_API_KEY
 
-# LINE Botの設定
+# Initialize LINE Bot
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 line_parser = WebhookParser(LINE_CHANNEL_SECRET)
 app = FastAPI()
 
-# メッセージの処理
+# Load PDF using langchain
+pdf_file_path = 'C:\\Users\\User\\Desktop\\chatbot\\生活保護運用事例 集 2017（令和3年6月改訂版）.pdf'
+def load_pdf(file_path):
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    texts = text_splitter.split_documents(documents)
+    return texts
+
+# Preprocess PDF for langchain
+texts = load_pdf('生活保護運用事例 集 2017（令和3年6月改訂版）.pdf')
+embeddings = OpenAIEmbeddings()
+vectordb = Chroma.from_documents(texts, embeddings)
+
+# Create QA chain using langchain
+qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(model_name="gpt-3.5-turbo"), chain_type="stuff", retriever=vectordb.as_retriever())
+
+# Handle incoming messages and generate responses
 @app.post('/')
 async def ai_talk(request: Request):
     # X-Line-Signature ヘッダーの値を取得
@@ -43,7 +50,7 @@ async def ai_talk(request: Request):
     # request body から event オブジェクトを取得
     events = line_parser.parse((await request.body()).decode('utf-8'), signature)
 
-    # 各イベントの処理（※1つの Webhook に複数の Webhook イベントオブジェクトが含まれる場合があるため）
+    # 各イベントの処理（※1つの Webhook に複数の Webhook イベントオブジェっｚクトが含まれる場合あるため）
     for event in events:
         if event.type != 'message':
             continue
