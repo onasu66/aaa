@@ -8,6 +8,7 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 from langchain.chains import ConversationalRetrievalChain
+import PyPDF2
 
 # 定数の定義
 OPENAI_API_KEY = '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'
@@ -19,12 +20,22 @@ from transformers import GPT2Tokenizer, GPT2TokenizerFast
 from langchain.embeddings import OpenAIEmbeddings
 
 # Step 1: Convert PDF to text
-import textract
-doc = textract.process("./生活保護運用事例 集 2017（令和3年6月改訂版）.pdf")
+def pdf_to_text(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfFileReader(file)
+        text = ''
+        for page_num in range(reader.numPages):
+            page = reader.getPage(page_num)
+            text += page.extractText()
+    return text
+
+# PDFファイルのパスを指定してテキストに変換
+pdf_file_path = "./生活保護運用事例 集 2017（令和3年6月改訂版）.pdf"
+text = pdf_to_text(pdf_file_path)
 
 # Step 2: Save to .txt and reopen (helps prevent issues)
 with open('生活保護運用事例 集 2017（令和3年6月改訂版）.txt', 'w') as f:
-    f.write(doc.decode('utf-8'))
+    f.write(text)
 
 with open('生活保護運用事例 集 2017（令和3年6月改訂版）.txt', 'r') as f:
     text = f.read()
