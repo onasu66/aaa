@@ -6,4 +6,4 @@ uvicorn
 gunicorn
 textract
 faiss
-langchain
+langchain==0.0.237
