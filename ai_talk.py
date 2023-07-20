@@ -3,7 +3,7 @@ import openai
 from linebot import WebhookParser, LineBotApi
 from linebot.models import TextSendMessage
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveTextSplitter
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
@@ -27,7 +27,7 @@ pdf_file_path = 'C:\\Users\\User\\Desktop\\chatbot\\生活保護運用事例 集
 def load_pdf(file_path):
     loader = PyPDFLoader(file_path)
     documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    text_splitter = RecursiveTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(documents)
     return texts
 
