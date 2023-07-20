@@ -29,7 +29,7 @@ def pdf_to_text(file_path):
             text += page.extractText()
     return text
 
-# PDFファイルのパスを指定してテキストに変換
+# PDFファイルのパスを指定してテキストに変換un
 pdf_file_path = "./生活保護運用事例 集 2017（令和3年6月改訂版）.pdf"
 text = pdf_to_text(pdf_file_path)
 
