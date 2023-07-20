@@ -9,7 +9,6 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 from langchain.chains import ConversationalRetrievalChain
-from transformers import GPT2Tokenizer
 
 # 定数の定義
 OPENAI_API_KEY = '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'
