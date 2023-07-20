@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 import openai
 from linebot import WebhookParser, LineBotApi
 from linebot.models import TextSendMessage
-from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
