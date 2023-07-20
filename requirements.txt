@@ -10,3 +10,4 @@ langchain
 pip
 PypDF2
 chromadb
+CharacterTextSplitter
