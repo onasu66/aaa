@@ -9,3 +9,4 @@ faiss
 langchain
 pip
 PypDF2
+chroma
